@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv='Content-type' content='text/htm'>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/js/jquery-1.12.4.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <style>
+        .filter a {
+            color: #999;
+        }
+
+        .active {
+            color: #23527c !important;
+        }
+    </style>
+</head>
+<body>
+<h3>数据列表</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <a href="{{ add_url }}" class="btn btn-primary">添加数据</a>
+            <form method="get" class="pull-right">
+                {% if show_list.config.search_fields %}
+                    <input type="text" name="q" value="{{ key_word }}">
+                    <input type="submit" class="btm btn-primary" value="搜索">
+                {% endif %}
+            </form>
+
+            <form method="post">
+                {% csrf_token %}
+                <select name="action" style="width: 200px;padding: 5px 8px;display: inline-block">
+                    <option>------</option>
+                    {% for action in show_list.get_actions_list %}
+                        <option value="{{ action.name }}">{{ action.desc }}</option>
+                    {% endfor %}
+
+                </select>
+                <button type="submit" class="btn btn-info">Go</button>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        {% for head_name in head_list %}
+                            <td>{{ head_name }}</td>
+                        {% endfor %}
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data_list in new_data_list %}
+                        <tr class="data-list">
+                            {% for data in data_list %}
+                                <td>{{ data }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+            <nav>
+                <ul class="pagination">
+                    {{ show_list.paginator.page_html|safe }}
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-3">
+            {% if show_list.config.filter_fields %}
+                <div class="filter">
+                    <h3>Filter</h3>
+                    {% for field, link_tag in show_list.get_filter_linktags.items %}
+                        <div class="well">
+                            <p>{{ field|upper }}</p>
+                            {% for tag in link_tag %}
+                                <p>{{ tag|safe }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+<script>
+    // 全选事件
+    $("#all_select").click(function () {
+        if ($(this).prop("checked")) {
+            $(".select").prop("checked", true)
+        }
+        else {
+            $(".select").prop("checked", false)
+        }
+    });
+    // 每列复选框的点击事件
+    $(".data-list").find(":checkbox").change(function () {
+        all_len = $(".data-list").length;
+        checked_len = $(".data-list").find(":checked").length;
+        if (checked_len < all_len) {
+            $("#all_select").prop("checked", false)
+        }
+        else {
+            $("#all_select").prop("checked", true)
+        }
+    })
+</script>
+</body>
+</html>
